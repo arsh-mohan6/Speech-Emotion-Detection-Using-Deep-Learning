@@ -104,6 +104,7 @@ print(df["emotion"].value_counts())
 print("\nTotal Samples:")
 print(len(df))
 
-df.to_csv("combined_dataset.csv", index=False)
+df.to_csv("data/processed_data/combined_dataset.csv", index=False)
 
 print("\ncombined_dataset.csv saved successfully.")
+
