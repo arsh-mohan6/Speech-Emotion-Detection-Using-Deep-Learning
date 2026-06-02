@@ -1,105 +1,245 @@
 # Speech Emotion Detection Using Deep Learning
 
-This project focuses on detecting human emotions from speech audio using deep learning techniques. The RAVDESS dataset is used for training and evaluation.
+This project focuses on detecting human emotions from speech audio using Deep Learning techniques. The model is trained using a combination of three popular emotional speech datasets: **RAVDESS**, **CREMA-D**, and **TESS**.
 
+The objective is to classify speech into six emotional categories using a **CNN + Bi-LSTM + Attention** based architecture.
 
+---
+
+# Project Structure
+
+```text
 Speech-Emotion-Detection/
 
 ├── data/
-│   ├── AudioWAV/                           # CREMA-D Dataset
-│   ├── Radvess/                            # RAVDESS Dataset
-│   ├── TESS Toronto emotional speech set data/   # TESS Dataset
+│   ├── AudioWAV/                                 # CREMA-D Dataset
+│   ├── Radvess/                                  # RAVDESS Dataset
+│   ├── TESS Toronto emotional speech set data/  # TESS Dataset
 │   │
 │   └── processed_data/
-│       ├── combined_dataset.csv            # Combined metadata of all datasets
-│       ├── train.csv                       # Training split
-│       ├── val.csv                         # Validation split
-│       └── test.csv                        # Test split
+│       ├── combined_dataset.csv
+│       ├── train.csv
+│       ├── val.csv
+│       └── test.csv
 │
 ├── src/
-│   ├── combine_datasets.py                 # Merge RAVDESS, CREMA-D, TESS
-│   ├── split_dataset.py                    # Train/Validation/Test split
-│   ├── feature_extraction.py               # Audio preprocessing & feature extraction
-│   ├── train_model.py                      # CNN-BiLSTM-Attention model training
-│   └── predict.py                          # Emotion prediction from audio
+│   ├── combine_datasets.py
+│   ├── split_dataset.py
+│   ├── feature_extraction.py
+│   ├── train_model.py
+│   └── predict.py
 │
 ├── models/
-│   └── best_model.h5                       # Trained model
+│   └── best_model.h5
 │
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
-Pipeline:
+---
 
+# Dataset Information
+
+## Datasets Used
+
+* RAVDESS (Speech Only)
+* CREMA-D
+* TESS
+
+## Target Emotions
+
+* Angry
+* Disgust
+* Fear
+* Happy
+* Neutral
+* Sad
+
+---
+
+# Data Statistics
+
+## Dataset Integration Results
+
+| Dataset   |    Samples |
+| --------- | ---------: |
+| RAVDESS   |      1,056 |
+| CREMA-D   |      7,442 |
+| TESS      |      2,400 |
+| **Total** | **10,898** |
+
+---
+
+## Emotion Distribution
+
+| Emotion | Samples |
+| ------- | ------: |
+| Angry   |   1,863 |
+| Disgust |   1,863 |
+| Fear    |   1,863 |
+| Happy   |   1,863 |
+| Sad     |   1,863 |
+| Neutral |   1,583 |
+
+---
+
+## Dataset Split
+
+| Split      | Samples |
+| ---------- | ------: |
+| Training   |   8,718 |
+| Validation |   1,090 |
+| Test       |   1,090 |
+
+---
+
+# Proposed Pipeline
+
+```text
 RAVDESS + CREMA-D + TESS
-│
-▼
+            │
+            ▼
 Dataset Combination
-│
-▼
+            │
+            ▼
 Train / Validation / Test Split
-│
-▼
+            │
+            ▼
 Audio Preprocessing
 (Resampling, Padding, Trimming)
-│
-▼
+            │
+            ▼
 Data Augmentation (Train Only)
-• Noise Injection
-• Pitch Shift
-• Time Stretch
-• Volume Change
-│
-▼
+ • Noise Injection
+ • Pitch Shift
+ • Time Stretch
+ • Volume Change
+            │
+            ▼
 Feature Extraction
-• MFCC (40)
-• Mel Spectrogram (128)
-• Chroma Features (12)
-│
-▼
+ • MFCC (40)
+ • Mel Spectrogram (128)
+ • Chroma Features (12)
+            │
+            ▼
 Feature Fusion
 (180 × 130 Feature Matrix)
-│
-▼
+            │
+            ▼
 CNN Layers
 (Spatial Feature Learning)
-│
-▼
+            │
+            ▼
 Bi-LSTM Layers
 (Temporal Dependency Learning)
-│
-▼
+            │
+            ▼
 Attention Mechanism
 (Focus on Important Emotional Segments)
-│
-▼
+            │
+            ▼
 Dense + Softmax
-│
-▼
+            │
+            ▼
 Emotion Classification
+```
 
-Target Emotions:
-• Angry
-• Disgust
-• Fear
-• Happy
-• Neutral
-• Sad
+---
 
-Datasets Used:
-• RAVDESS (Speech Only)
-• CREMA-D
-• TESS
+# Feature Extraction Configuration
 
-Total Samples Before Augmentation:
-10,898
+| Parameter       | Value     |
+| --------------- | --------- |
+| Sample Rate     | 22,050 Hz |
+| Audio Duration  | 3 Seconds |
+| MFCC Features   | 40        |
+| Mel Bands       | 128       |
+| Chroma Features | 12        |
 
-Training Samples:
-8,718
+---
 
-Validation Samples:
-1,090
+# Feature Extraction Results
 
-Test Samples:
-1,090
+Successfully tested on sample audio files.
+
+| Feature           | Shape      |
+| ----------------- | ---------- |
+| MFCC              | (40, 130)  |
+| Mel Spectrogram   | (128, 130) |
+| Chroma            | (12, 130)  |
+| Combined Features | (180, 130) |
+
+---
+
+# Data Augmentation Strategy
+
+Applied only on the Training Dataset.
+
+1. Original Audio
+2. Noise Injection
+3. Pitch Shift
+4. Time Stretch
+5. Volume Change
+
+Expected Training Samples After Augmentation:
+
+```text
+8,718 × 5 = 43,590 Samples
+```
+
+---
+
+# Feature Extraction Validation
+
+Tested on 10 audio samples.
+
+Output:
+
+```text
+X Shape : (50, 180, 130)
+y Shape : (50,)
+```
+
+This validates:
+
+* Audio Loading
+* Audio Preprocessing
+* Data Augmentation
+* MFCC Extraction
+* Mel Spectrogram Extraction
+* Chroma Extraction
+* Feature Fusion
+* Label Encoding
+
+---
+
+# Current Progress
+
+| Task                        | Status |
+| --------------------------- | ------ |
+| Dataset Collection          |   D    |
+| Dataset Combination         |   D    |
+| Dataset Splitting           |   D    |
+| Audio Preprocessing         |   D    |
+| Data Augmentation Pipeline  |   D    |
+| Feature Extraction Pipeline |   D    |
+| CNN Model                   |   R    |
+| Bi-LSTM                     |   R    |
+| Attention Layer             |   R    |
+| Model Training              |   R    |
+| Model Evaluation            |   R    |
+| Real-Time Prediction        |   R    |
+
+---
+
+# Future Work
+
+* Train CNN model on extracted features
+* Integrate Bi-LSTM for temporal learning
+* Add Attention mechanism
+* Evaluate using Accuracy, Precision, Recall and F1-Score
+* Deploy real-time speech emotion prediction system
+* Compare performance across different feature combinations
+
+---
