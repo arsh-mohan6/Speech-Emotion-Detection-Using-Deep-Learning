@@ -106,7 +106,7 @@ print("Audio:", audio_path)
 audio = load_audio(audio_path)
 
 mfcc, mel, chroma = extract_features(audio)
-
+ 
 print("MFCC Shape:", mfcc.shape)
 print("Mel Shape:", mel.shape)
 print("Chroma Shape:", chroma.shape)
@@ -189,3 +189,6 @@ np.save(
 )
 
 print("Train features saved.")
+
+print(X.dtype)
+print(y.dtype)
