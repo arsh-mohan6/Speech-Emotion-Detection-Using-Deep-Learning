@@ -20,3 +20,11 @@ import tensorflow as tf
 
 print(tf.config.list_physical_devices())
 print(tf.config.list_physical_devices('GPU'))
+
+import numpy as np
+
+X_train = np.load("data/processed_data/X_train.npy")
+
+print("Train Min :", X_train[0].min())
+print("Train Max :", X_train[0].max())
+print("Train Mean:", X_train[0].mean())
