@@ -13,3 +13,5 @@ __pycache__/
 # Virtual Environment
 venv/
 combined_dataset.csv
+
+README.md

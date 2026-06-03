@@ -8,8 +8,13 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix
+)
 
-
+import pandas as pd
 # ==========================================
 # CUSTOM ATTENTION LAYER
 # ==========================================
@@ -93,6 +98,43 @@ print("X_test:", X_test.shape)
 print("y_test:", y_test.shape)
 
 # ==========================================
+# LOAD TRAIN DATA FOR SCALER
+# ==========================================
+
+X_train = np.load(
+    "data/processed_data/X_train.npy"
+)
+
+# ==========================================
+# FEATURE NORMALIZATION
+# SAME AS TRAINING
+# ==========================================
+
+scaler = StandardScaler()
+
+X_train_2d = X_train.reshape(
+    -1,
+    X_train.shape[-1]
+)
+
+X_test_2d = X_test.reshape(
+    -1,
+    X_test.shape[-1]
+)
+
+scaler.fit(X_train_2d)
+
+X_test_2d = scaler.transform(
+    X_test_2d
+)
+
+X_test = X_test_2d.reshape(
+    X_test.shape
+)
+
+print("Normalization Complete")
+
+# ==========================================
 # ADD CHANNEL DIMENSION
 # ==========================================
 
@@ -133,3 +175,61 @@ test_loss, test_accuracy = model.evaluate(
 print("\nTest Loss:", test_loss)
 print("Test Accuracy:", test_accuracy)
 
+# ==========================================
+# PREDICTIONS
+# ==========================================
+
+y_pred = model.predict(
+    X_test
+)
+
+y_pred = np.argmax(
+    y_pred,
+    axis=1
+)
+
+y_true = np.argmax(
+    y_test,
+    axis=1
+)
+
+emotion_names = [
+    "Angry",
+    "Disgust",
+    "Fear",
+    "Happy",
+    "Neutral",
+    "Sad"
+]
+
+# ==========================================
+# CLASSIFICATION REPORT
+# ==========================================
+
+print("\nClassification Report:\n")
+
+print(
+    classification_report(
+        y_true,
+        y_pred,
+        target_names=emotion_names
+    )
+)
+
+# ==========================================
+# CONFUSION MATRIX
+# ==========================================
+
+cm = confusion_matrix(
+    y_true,
+    y_pred
+)
+
+cm_df = pd.DataFrame(
+    cm,
+    index=emotion_names,
+    columns=emotion_names
+)
+
+print("\nConfusion Matrix:\n")
+print(cm_df)
