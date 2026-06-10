@@ -263,7 +263,7 @@ This validates:
 # Future Work
 
 * Train CNN model on extracted features
-* Integrate Bi-LSTM for temporal learning
+
 * Add Attention mechanism
 * Evaluate using Accuracy, Precision, Recall and F1-Score
 * Deploy real-time speech emotion prediction system
@@ -271,3 +271,59 @@ This validates:
 
 ---
 >>>>>>> 1dc2f6691bdd770caaa230a42ed4f9a18d96f03e
+
+                    INPUTS
+                       │
+        ┌──────────────┴──────────────┐
+        │                             │
+        ▼                             ▼
+
+   MFCC Branch                  Mel Branch
+ (120 × 130)                 (128 × 130 × 1)
+
+        │                             │
+        ▼                             ▼
+
+  BiLSTM(64)                Conv2D(32)+BN
+        │                             │
+     Dropout                    MaxPool
+        │                             │
+  BiLSTM(32)                Conv2D(64)+BN
+        │                             │
+        ▼                       MaxPool
+ MultiHeadAttn                     │
+ (2 Heads)                         ▼
+        │                    Conv2D(128)+BN
+ Residual Add                      │
+        │                           ▼
+ LayerNorm                  GlobalAvgPool2D
+        │                           │
+ GlobalAvgPool1D                    │
+        │                           │
+        └──────────┬────────────────┘
+                   │
+                   ▼
+
+              Concatenate
+                   │
+              Dropout
+                   │
+         Dense(128) + L2
+                   │
+              BN + ReLU
+                   │
+              Dropout
+                   │
+          Dense(64) + L2
+                   │
+              BN + ReLU
+                   │
+                   ▼
+
+       Dense(6) + Softmax + L2
+                   │
+                   ▼
+
+        Emotion Classification
+ (Angry, Disgust, Fear, Happy,
+        Neutral, Sad)
