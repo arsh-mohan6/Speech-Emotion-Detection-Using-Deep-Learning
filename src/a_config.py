@@ -35,7 +35,7 @@ L2_VALUE = 1e-4
 # CALLBACKS
 # ==========================================
 
-EARLY_STOPPING_PATIENCE = 10
+EARLY_STOPPING_PATIENCE = 20
 
 REDUCE_LR_PATIENCE = 3
 
@@ -48,7 +48,7 @@ MIN_LR = 1e-6
 # MODEL PATHS
 # ==========================================
 
-MODEL_PATH = "models/best_model.keras"
+MODEL_PATH = "models/best_model_class_weight.keras"
 
 MFCC_SCALER_PATH = "models/scaler_mfcc.pkl"
 

@@ -157,7 +157,7 @@ class AttentionLayer(tf.keras.layers.Layer):
 from tensorflow.keras.models import load_model
 
 model = load_model(
-    "models/best_model.keras",
+    "models/best_model_class_weight.keras",
     custom_objects={
         "AttentionLayer": AttentionLayer
     }
@@ -185,3 +185,61 @@ results = model.evaluate(
 
 print("\nResults:")
 print(results)
+
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    accuracy_score
+)
+
+# Predictions
+
+y_pred_probs = model.predict(
+    [
+        X_test_mfcc,
+        X_test_mel
+    ]
+)
+
+y_pred = np.argmax(
+    y_pred_probs,
+    axis=1
+)
+
+# Accuracy
+
+test_acc = accuracy_score(
+    y_test,
+    y_pred
+)
+
+print(f"\nTest Accuracy: {test_acc:.4f}")
+
+# Report
+
+emotion_names = [
+    "angry",
+    "disgust",
+    "fear",
+    "happy",
+    "neutral",
+    "sad"
+]
+
+print(
+    classification_report(
+        y_test,
+        y_pred,
+        target_names=emotion_names
+    )
+)
+
+# Confusion Matrix
+
+cm = confusion_matrix(
+    y_test,
+    y_pred
+)
+
+print("\nConfusion Matrix:\n")
+print(cm)

@@ -26,22 +26,15 @@ from tensorflow.keras.layers import (
     ReLU,
     Layer
 )
-
+from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.callbacks import (
     EarlyStopping,
     ReduceLROnPlateau,
     ModelCheckpoint
 )
-from tensorflow.keras.layers import (
-    MultiHeadAttention,
-    LayerNormalization,
-    GlobalAveragePooling1D
-)
-
 from tensorflow.keras.regularizers import l2
 
 from a_config import *
-
 # ==========================================
 # LOAD DATA
 # ==========================================
@@ -252,6 +245,10 @@ joblib.dump(
 # print("99% :", np.percentile(mel_flat, 99))
 # print("99.9% :", np.percentile(mel_flat, 99.9))
 # print("Max :", np.max(mel_flat))
+"""
+Saving the original label
+"""
+y_train_labels = y_train.copy()
 
 # ==========================================
 # ONE HOT ENCODING
@@ -271,6 +268,23 @@ y_test = to_categorical(
     y_test,
     NUM_CLASSES
 )
+
+"""
+    Class Weights
+"""
+class_weights = compute_class_weight(
+    class_weight="balanced",
+    classes=np.unique(y_train_labels),
+    y=y_train_labels
+)
+
+class_weights = dict(
+    enumerate(class_weights)
+)
+
+print("\nClass Weights:")
+print(class_weights)
+
 
 # print("\ny_train:", y_train.shape)
 # print("y_val:", y_val.shape)
@@ -365,9 +379,7 @@ mfcc_input = Input(
 mfcc_x = Bidirectional(
     LSTM(
         64,
-        return_sequences=True,
-        kernel_regularizer=l2(L2_VALUE),
-        recurrent_regularizer=l2(L2_VALUE)
+        return_sequences=True
     )
 )(mfcc_input)
 
@@ -377,31 +389,22 @@ mfcc_x = Dropout(
 
 mfcc_x = Bidirectional(
     LSTM(
-        32,
-        return_sequences=True,
-        kernel_regularizer=l2(L2_VALUE),
-        recurrent_regularizer=l2(L2_VALUE)
+        64,
+        return_sequences=True
     )
 )(mfcc_x)
 
-attention_output = MultiHeadAttention(
-    num_heads=2,
-    key_dim=32
+mfcc_output = AttentionLayer()(
+    mfcc_x
+)
+
+mfcc_output = Dropout(
+    0.2
 )(
-    mfcc_x,
-    mfcc_x
-)
-
-mfcc_x = LayerNormalization()(
-    mfcc_x + attention_output
-)
-
-mfcc_output = GlobalAveragePooling1D()(
-    mfcc_x
+    mfcc_output
 )
 
 print("\nMFCC Branch Ready")
-
 # ==========================================
 # MEL BRANCH
 # ==========================================
@@ -510,10 +513,7 @@ fusion = Dropout(
 )
 
 fusion = Dense(
-    128,
-        kernel_regularizer=l2(
-        L2_VALUE
-        )
+    128
 )(
     fusion
 )
@@ -533,14 +533,10 @@ fusion = Dropout(
 )
 
 fusion = Dense(
-    64,
-    kernel_regularizer=l2(
-        L2_VALUE
-    )
+    64
 )(
     fusion
 )
-
 fusion = BatchNormalization()(
     fusion
 )
@@ -551,10 +547,7 @@ fusion = ReLU()(
 
 outputs = Dense(
     NUM_CLASSES,
-    activation="softmax",
-    kernel_regularizer=l2(
-        L2_VALUE
-    )
+    activation="softmax"
 )(
     fusion
 )
@@ -649,6 +642,7 @@ history = model.fit(
     ),
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
+    class_weight=class_weights,
     callbacks=[
         early_stopping,
         reduce_lr,
