@@ -48,7 +48,7 @@ MIN_LR = 1e-6
 # MODEL PATHS
 # ==========================================
 
-MODEL_PATH = "models/best_model_class_weight.keras"
+MODEL_PATH = "models/best_model_class_weight_2.keras"
 
 MFCC_SCALER_PATH = "models/scaler_mfcc.pkl"
 

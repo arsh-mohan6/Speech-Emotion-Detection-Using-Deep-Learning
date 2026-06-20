@@ -1,0 +1,5 @@
+BATCH_SIZE = 4
+EPOCHS = 10
+LEARNING_RATE = 5e-4
+NUM_CLASSES = 6
+MODEL_PATH = "models/wav2vec2_best.pt"
